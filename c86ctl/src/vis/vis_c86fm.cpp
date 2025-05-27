@@ -169,6 +169,7 @@ void CVisC86Fm::drawFMView( IVisBitmap *canvas, int x, int y, COPNFmCh *pFmCh )
 	}
 }
 
+/*
 void CVisC86Fm::drawFMSlotView( IVisBitmap *canvas, int x, int y, COPXFmSlot *pSlot, int slotidx )
 {
 	CVisC86Skin *skin = &gVisSkin;
@@ -250,6 +251,128 @@ void CVisC86Fm::drawFMSlotView( IVisBitmap *canvas, int x, int y, COPXFmSlot *pS
 		visDrawLine( canvas, sx+(int)d1x, sy+(int)d1y, sx+(int)d2x, sy+(int)d2y, 0xffffffff );
 		visDrawLine( canvas, sx+(int)d2x, sy+(int)d2y, sx+(int)rx , sy+(int)ry, 0xffffffff );
 	}
+#endif
+}*/
+
+#define	COLOR_ATTACK	0x00cfcfff
+#define	COLOR_DECAY		0x0040ff40
+#define	COLOR_SUSTAIN	0x00ffff40
+#define	COLOR_RELEASE	0x00ff4040
+void CVisC86Fm::drawFMSlotView(IVisBitmap* canvas, int x, int y, COPXFmSlot* pSlot, int slotidx)
+{
+	CVisC86Skin* skin = &gVisSkin;
+	skin->drawFMSlotSkin(canvas, x, y);
+
+	// index
+	char str[10];
+	sprintf_s(str, sizeof(str), "%d", slotidx + 1);
+	skin->drawVStr(canvas, 0, x + 8, y + 20, str);
+
+#if 1
+
+	int sx = x + 23, sy = y + 6 + 63;		//描画開始位置
+	int ex, ey;
+	//	double	scale_x = 64.0f, scale_y = 64.0f;	//描画座標変換用　座標0.0～1.0を何pixelにするか指定
+	double	scale_x = 32.0f, scale_y = 64.0f;	//横方向に長すぎて座標が描画範囲を超えると線が描画されない事に注意
+
+	int angle;
+	int TotalLevel = pSlot->getTotalLevel();
+	int SustainLevel = pSlot->getSustainLevel();
+	bool bDrawBreak = false;
+	bool bSkipSustain = false;
+
+	double tl_db;
+	double sl_db;
+	double release_db;
+	double height, width;
+
+	// ---------- attack ----------
+	angle = pSlot->getAttackRate();
+	if (angle == 0 || TotalLevel == 127)	return;
+
+	tl_db = TotalLevel * 0.75f;
+	height = (96.0f - tl_db) / 96.0f;
+	width = height / _tan_tbl[angle];
+
+	ex = sx + (int)(width * scale_x);
+	ey = sy - (int)(height * scale_y);	// Y 反転
+	visDrawLine(canvas, sx, sy, ex, ey, COLOR_ATTACK);
+	sx = ex;	//次の描画開始位置更新
+	sy = ey;
+
+	// ---------- decay ----------
+	//  SL/DR例外
+	//　・SL == 0の時、DRは無視され直ちにサスティンに移行
+	//　・DR == 0の時、SLは無視され持続音（サスティン期間無し）
+	//	　SLチェックを優先
+	angle = pSlot->getDecayRate();
+	sl_db = (SustainLevel == 15) ? 93.0f : (double)(SustainLevel * 3);
+	if ((sl_db + tl_db) > 96.0f) {
+		sl_db = (96.0f - tl_db);	//clip
+		// SL分下げた結果が96db以上であればディケイで無音に達したと見なしサスティン以降を描かない
+		bDrawBreak = true;
+	}
+
+	if (SustainLevel) {
+		if (angle) {
+			height = (sl_db) / 96.0f;
+			width = height / _tan_tbl[angle];
+
+			ex = sx + (int)(width * scale_x);
+			ey = sy + (int)(height * scale_y);
+			visDrawLine(canvas, sx, sy, ex, ey, COLOR_DECAY);
+			sx = ex;	//次の描画開始位置
+			sy = ey;
+		}
+		else {
+			//DR例外 減衰なし持続音
+			ex = sx + (int)(scale_x);	//取り敢えず X方向の長さは後で考える
+			ey = sy;
+			visDrawLine(canvas, sx, sy, ex, ey, COLOR_DECAY);
+			sx = ex;	//次の描画開始位置
+			sy = ey;
+			bSkipSustain = true;	//持続音の時はサスティンを描かない
+		}
+	}
+	if (bDrawBreak)	return;
+
+	// ---------- Sustain ----------
+	release_db = 96.0f - (sl_db + tl_db);	//Sustain Levelから無音まで
+	if (bSkipSustain == false) {
+		angle = pSlot->getSustainRate();
+		if (angle == 0) {
+			//SR例外 減衰なし持続音
+			ex = sx + (int)(scale_x) / 2;	//取り敢えず X方向の長さは後で考える
+			ey = sy;
+			visDrawLine(canvas, sx, sy, ex, ey, COLOR_SUSTAIN);
+			sx = ex;	//次の描画開始位置
+			sy = ey;
+		}
+		else {
+			//サスティン期間の中央でリリースに移行させるので高さを半分にする
+			height = (release_db / 2) / 96.0f;
+			width = height / _tan_tbl[angle];
+
+			ex = sx + (int)(width * scale_x);
+			ey = sy + (int)(height * scale_y);
+			visDrawLine(canvas, sx, sy, ex, ey, COLOR_SUSTAIN);
+			sx = ex;	//次の描画開始位置
+			sy = ey;
+		}
+	}
+
+	// ---------- Release ----------
+	//サスティンをスキップ又はサスティンの角度が0の場合リリースで96dbまで落とす
+	height = (bSkipSustain || (angle == 0)) ? release_db : release_db / 2;
+	height /= 96.0f;
+
+	angle = (pSlot->getReleaseRate() << 1) + 1;
+	width = height / _tan_tbl[angle];
+
+	ex = sx + (int)(width * scale_x);
+	ey = sy + (int)(height * scale_y);
+	visDrawLine(canvas, sx, sy, ex, ey, COLOR_RELEASE);
+
 #endif
 }
 

@@ -13,7 +13,7 @@
 #define VERSION_REVISION   3
 #define VERSION_BUILD      27
 #define VERSION_STRING     "2, 0, 3, 27"
-#define VERSION_MESSAGE    "VER 2.0.3.27(DBG-ONLY)"
+#define VERSION_MESSAGE    "VER 2.0.3.27b(FEATURE)"	//実験コード書き散らし用
 
 
 // DON'T CHANGE FOLLOWINGS. (for DLL resorce) ---------------------

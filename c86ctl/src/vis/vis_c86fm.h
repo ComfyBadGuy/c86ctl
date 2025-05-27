@@ -27,6 +27,10 @@ public:
 	{
 		_windowWidth = 330+4;
 		_windowHeight = 75*5+4+15;
+
+		for (long i = 0; i < 32; i++) {
+			_tan_tbl[i] = tan((3.14159265f / 64) * i);
+		}
 	}
 	~CVisC86Fm(){}
 
@@ -63,6 +67,8 @@ protected:
 	CVisKnobPtr knobDET2[4];
 	CVisDipSwPtr dipswAM[4];
 	CVisSSGEGGraphPtr graphSSGEG[4];
+private:
+	double	_tan_tbl[32];
 };
 
 typedef std::shared_ptr<CVisC86Fm> CVisC86FmPtr;
