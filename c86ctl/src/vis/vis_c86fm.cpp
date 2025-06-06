@@ -304,7 +304,7 @@ void CVisC86Fm::drawFMSlotView(IVisBitmap* canvas, int x, int y, COPXFmSlot* pSl
 	//  SL/DR例外
 	//　・SL == 0の時、DRは無視され直ちにサスティンに移行
 	//　・DR == 0の時、SLは無視され持続音（サスティン期間無し）
-	//	　SLチェックを優先
+	//	　DRチェックを優先
 	angle = pSlot->getDecayRate();
 	sl_db = (SustainLevel == 15) ? 93.0f : (double)(SustainLevel * 3);
 	if ((sl_db + tl_db) > 96.0f) {
@@ -313,8 +313,8 @@ void CVisC86Fm::drawFMSlotView(IVisBitmap* canvas, int x, int y, COPXFmSlot* pSl
 		bDrawBreak = true;
 	}
 
-	if (SustainLevel) {
-		if (angle) {
+	if (angle) {
+		if (SustainLevel) {
 			height = (sl_db) / 96.0f;
 			width = height / _tan_tbl[angle];
 
@@ -325,14 +325,17 @@ void CVisC86Fm::drawFMSlotView(IVisBitmap* canvas, int x, int y, COPXFmSlot* pSl
 			sy = ey;
 		}
 		else {
-			//DR例外 減衰なし持続音
-			ex = sx + (int)(scale_x);	//取り敢えず X方向の長さは後で考える
-			ey = sy;
-			visDrawLine(canvas, sx, sy, ex, ey, COLOR_DECAY);
-			sx = ex;	//次の描画開始位置
-			sy = ey;
-			bSkipSustain = true;	//持続音の時はサスティンを描かない
+			;	// SL == 0例外
 		}
+	}
+	else {
+		//DR例外 減衰なし持続音
+		ex = sx + (int)(scale_x);	//取り敢えず X方向の長さは後で考える
+		ey = sy;
+		visDrawLine(canvas, sx, sy, ex, ey, COLOR_DECAY);
+		sx = ex;	//次の描画開始位置
+		sy = ey;
+		bSkipSustain = true;	//持続音の時はサスティンを描かない
 	}
 	if (bDrawBreak)	return;
 
