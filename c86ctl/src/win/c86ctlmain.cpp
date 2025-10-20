@@ -39,7 +39,7 @@ extern "C" {
 #include "interface/if_gimic_winusb.h"
 #include "interface/if_gimic_midi.h"
 #include "interface/if_c86usb_winusb.h"
-
+#include "interface/if_BtSynth.h"
 
 #pragma comment(lib,"hidclass.lib")
 
@@ -187,6 +187,7 @@ unsigned int WINAPI C86CtlMain::threadMain(LPVOID param)
 				//GimicHID::UpdateInstances(pThis->gIF);
 				GimicWinUSB::UpdateInstances(pThis->gIF);
 				C86WinUSB::UpdateInstances(pThis->gIF);
+				BtSynthBase::UpdateInstances(pThis->gIF);
 				pThis->updateMapping();
 				pwnd->deviceUpdate();
 				break;
@@ -311,6 +312,7 @@ int C86CtlMain::initialize(void)
 	GimicWinUSB::UpdateInstances(gIF);
 	//gGIMIC = GimicMIDI::CreateInstances(); // deprecated.
 	C86WinUSB::UpdateInstances(gIF);
+	BtSynthBase::UpdateInstances(gIF);
 	updateMapping();
 
 	// タイマ分解能設定

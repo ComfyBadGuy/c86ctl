@@ -21,7 +21,7 @@
 #include "c86ctlmainwnd.h"
 #include "../interface/if_c86usb_winusb.h"
 #include "../interface/if_gimic_winusb.h"
-
+#include "../interface/if_BtSynth.h"
 
 #ifdef _DEBUG
 #define new new(_NORMAL_BLOCK,__FILE__,__LINE__)
@@ -141,6 +141,7 @@ bool CVisC86Main::update()
 
 		GimicWinUSB::GimicModuleWinUSB* gimic_module = NULL;
 		C86WinUSB::C86ModuleWinUSB* c86 = NULL;
+		BtSynthBase::BtSynthModule* btsynth_module = NULL;
 
 		if (gimic_module = dynamic_cast<GimicWinUSB::GimicModuleWinUSB*>(s->module)) {
 			Devinfo chipinfo;
@@ -249,6 +250,18 @@ bool CVisC86Main::update()
 				info[i].board_name.assign("SB-AWE32"); break;
 			case CBUS_BOARD_118:
 				info[i].board_name.assign("PC-9801-118"); break;
+			}
+		}
+		else if (btsynth_module = dynamic_cast<BtSynthBase::BtSynthModule*>(s->module)) {
+			BtSynthBase* btsynth_base = dynamic_cast<BtSynthBase*>(s->module->getParentDevice());
+			if (btsynth_base) {
+				char board_name[256];
+				btsynth_base->getBoardName(board_name);
+				sprintf_s(str, sizeof(str), "%s (%d:%d)",
+					board_name,
+					btsynth_module->getSlotIndex(),
+					btsynth_module->getChipIndex());
+				info[i].device_name.assign(str);
 			}
 		}
 	}

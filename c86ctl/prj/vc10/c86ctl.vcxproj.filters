@@ -127,6 +127,9 @@
     <ClCompile Include="..\..\src\chip\ymz280b.cpp">
       <Filter>module</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\interface\if_BtSynth.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\win\config.h">
@@ -251,6 +254,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\chip\ymz280b.h">
       <Filter>module</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\interface\if_BtSynth.h">
+      <Filter>interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

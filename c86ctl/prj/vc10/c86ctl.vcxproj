@@ -188,6 +188,7 @@ c:\ruby\bin\ruby verup.rb</Command>
     <ClCompile Include="..\..\src\chip\ymz280b.cpp" />
     <ClCompile Include="..\..\src\common\ringbuff.cpp" />
     <ClCompile Include="..\..\src\interface\delay_filter.cpp" />
+    <ClCompile Include="..\..\src\interface\if_BtSynth.cpp" />
     <ClCompile Include="..\..\src\interface\if_c86usb_winusb.cpp" />
     <ClCompile Include="..\..\src\interface\if_gimic_hid.cpp" />
     <ClCompile Include="..\..\src\interface\if_gimic_midi.cpp" />
@@ -230,6 +231,7 @@ c:\ruby\bin\ruby verup.rb</Command>
     <ClInclude Include="..\..\src\interface\basefilter.h" />
     <ClInclude Include="..\..\src\interface\delay_filter.h" />
     <ClInclude Include="..\..\src\interface\if.h" />
+    <ClInclude Include="..\..\src\interface\if_BtSynth.h" />
     <ClInclude Include="..\..\src\interface\if_c86usb_winusb.h" />
     <ClInclude Include="..\..\src\interface\if_gimic_hid.h" />
     <ClInclude Include="..\..\src\interface\if_gimic_midi.h" />
