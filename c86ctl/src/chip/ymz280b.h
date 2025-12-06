@@ -16,6 +16,7 @@ public:
 //		map = new UCHAR[ramsize];
 //		wav = new SHORT[ramsize * 2];
 		minimap = new UCHAR[minimapsize];
+		s_adpcmPlayed = false;
 		reset();
 	}
 	virtual ~CYMZ280BAdpcm() {
@@ -70,6 +71,7 @@ protected:
 	int keyOnLevel[8];
 
 	bool sw[8];
+	bool s_adpcmPlayed;
 	UCHAR reg[256];
 
 public:
